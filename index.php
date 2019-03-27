@@ -40,7 +40,6 @@ if(useGeoloc == true){
 } else document.getElementById('static').checked = true;
 var center = [7.25000, 43.70000];
 var donutPosition = [
-[2.63704,48.84991],
 [7.17180,43.65664],
 [7.18092,43.65490],
 [7.23093,43.67862],
