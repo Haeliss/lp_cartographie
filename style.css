@@ -16,10 +16,21 @@ body {
 	text-align: center; 
 	background-color: rgba(255, 255, 255, 0.5); 
 }
+#switch { 
+	position: absolute;
+    top: 45px;
+    left: 0;
+    z-index: 2;
+    height: 25px;
+    padding: 10px;
+    margin: 0;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.5);
+}
 #about {
 	position:absolute; 
-	top:50px; 
-	left:5px; 
+	top: 50px;
+    left: 125px; 
 	z-index: 2;
 	padding: 5px; 
 	margin: 0; 

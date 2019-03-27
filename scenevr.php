@@ -1,7 +1,7 @@
 <?php session_start(); 
 $nbDonut = $_SESSION["nbDonut"];
 if(isset($_POST['nbDonut'])) {
-	$_SESSION["nbDonut"] += 1;
+	$_SESSION["nbDonut"] = $_POST['nbDonut'];
 	header('Location: index.php');
 	exit();
 }

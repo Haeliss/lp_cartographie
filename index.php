@@ -1,8 +1,14 @@
 <?php 
 session_start();
 /*session is started if you don't write this line can't use $_Session  global variable*/
+if(isset($_POST['useGeoloc'])) {
+	$useGeoloc = $_POST['useGeoloc'];
+} else {
+	$useGeoloc = true;
+}
 if(!isset($_SESSION["nbDonut"])){
 $_SESSION["nbDonut"]=0;}
+
 $nbDonut = $_SESSION["nbDonut"];
 ?>
 <!DOCTYPE html>
@@ -20,11 +26,20 @@ $nbDonut = $_SESSION["nbDonut"];
 <body>
 <div id='map'></div>
 <p id="nbDonut">Nombre de donuts : 0</p>
+<div id="switch">
+<input type="checkbox" id="static" name="static">
+<label for="static">Mode static</label>	</div>
 <p id="about">i</p>
 <script>
 mapboxgl.accessToken = 'pk.eyJ1IjoiaGFlbGlzcyIsImEiOiJjanNsaWFqdWkxcngyNDNwNmkyZHRhZmJmIn0.Ge7r-3h2afU9x_IQwKDrBw';
-var lon,lat,position,center;
+var lon,lat,position;
+var useGeoloc = <?php echo $useGeoloc; ?>;
+if(useGeoloc == true){
+	document.getElementById('static').checked = false;
+} else document.getElementById('static').checked = true;
+var center = [7.25000, 43.70000];
 var donutPosition = [
+[2.63704,48.84991],
 [7.17180,43.65664],
 [7.18092,43.65490],
 [7.23093,43.67862],
@@ -37,9 +52,11 @@ var donutPosition = [
 //Récupération de la variable dans le tableau
 var nbDonut = <?php echo $nbDonut; ?>;
 document.getElementById('nbDonut').innerHTML = "Nombre de donuts : " + nbDonut;
-if(nbDonut >= donutPosition.length) {
-	var center = [7.41692,43.72474];
-} else var center = donutPosition[nbDonut];
+if(!useGeoloc){
+	if(nbDonut < donutPosition.length){
+		center = donutPosition[nbDonut];
+	}
+}
 var map = new mapboxgl.Map({
 container: 'map', // container id
 style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
@@ -72,11 +89,21 @@ geolocate.on('geolocate', function(e) {
       lon = e.coords.longitude;
       lat = e.coords.latitude
       position = [lon, lat];
-      console.log(position);
+	  console.log(position);
+	  if(lon.toFixed(3) == donutPosition[nbDonut][0].toFixed(3) && lat.toFixed(3) == donutPosition[nbDonut][1].toFixed(3)){
+		var mapLayer = map.getLayer('3d-model');
+		if((typeof mapLayer === 'undefined') && (nbDonut < donutPosition.length) && useGeoloc){	
+			map.addLayer(customLayer, 'waterway-label');
+		}
+	  }
 });
 var loader = new THREE.GLTFLoader();
 // parameters to ensure the model is georeferenced correctly on the map
-var modelOrigin = center;
+if(nbDonut < donutPosition.length){
+	var modelOrigin = donutPosition[nbDonut];
+} else {
+	var modelOrigin = center;
+}
 var modelAltitude = 0;
 var modelRotate = [Math.PI, 0, 0];
 var modelScale = 5.41843220338983e-8;
@@ -167,22 +194,42 @@ map.on('click', function(e){
 });
 function recherche(lon, lat){
 	var reponse = false;
-	donutPosition.forEach(function(element) {
+	var element = donutPosition[nbDonut];
 	var elem_lon = element[0];
 	var elem_lat = element[1];
 	if(elem_lon.toFixed(4)== lon && elem_lat.toFixed(4) == lat){
 		reponse= true;
 	}
-	});
 	return reponse;
 }
 map.on('style.load', function() {
-if(nbDonut < donutPosition.length){
-map.addLayer(customLayer, 'waterway-label');}
+	if((nbDonut < donutPosition.length) && !useGeoloc){
+		map.addLayer(customLayer, 'waterway-label');
+	}
 });
 
 document.getElementById('about').addEventListener('click',function(e){
 	document.location.href="about.php";
+});
+document.getElementById('static').addEventListener('click',function(e){
+	if(document.getElementById('static').checked == true){
+		useGeoloc = false;
+	} else {
+		useGeoloc = true;
+	}
+	//Création dynamique du formulaire
+			var form = document.createElement('form');
+			form.setAttribute('method', "POST");
+			form.setAttribute('action', "index.php");
+			var champCache = document.createElement('input');
+			champCache.setAttribute('type', 'hidden');
+			champCache.setAttribute('name', "useGeoloc");
+			champCache.setAttribute('value', useGeoloc);
+			form.appendChild(champCache);
+			
+			//Ajout du formulaire à la page et soumission du formulaire
+			document.body.appendChild(form);
+			form.submit();
 });
 </script>
  
