@@ -2,14 +2,15 @@
 session_start();
 /*session is started if you don't write this line can't use $_Session  global variable*/
 if(isset($_POST['useGeoloc'])) {
-	$useGeoloc = $_POST['useGeoloc'];
-} else {
-	$useGeoloc = true;
+	$_SESSION["useGeoloc"] = $_POST['useGeoloc'];
+	$_POST['useGeoloc'] = null;
 }
 if(!isset($_SESSION["nbDonut"])){
 $_SESSION["nbDonut"]=0;}
-
+if(!isset($_SESSION["useGeoloc"])){
+$_SESSION["useGeoloc"]= true;}
 $nbDonut = $_SESSION["nbDonut"];
+$useGeoloc = $_SESSION["useGeoloc"];
 ?>
 <!DOCTYPE html>
 <html>
